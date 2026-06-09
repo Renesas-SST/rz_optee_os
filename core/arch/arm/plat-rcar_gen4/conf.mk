@@ -60,9 +60,12 @@ CFG_CORE_CLUSTER_SHIFT = 2
 endif
 $(info "-- Build for ${LSI} --")
 
-CFG_TZDRAM_START ?= 0x44100000
-CFG_TZDRAM_SIZE	 ?= 0x03D00000
-CFG_TEE_RAM_VA_SIZE ?= 0x100000
+# Memory layout is defined in platform_config.h (TZDRAM_BASE/SIZE, TEE_RAM_*,
+# TA_RAM_*). Do NOT set CFG_TZDRAM_START/SIZE here — generic_ram_layout.h would
+# override the platform_config.h values and cause mobj_init() to panic at boot
+# because the C runtime and linker disagree on TEE RAM size.
+# CFG_TEE_RAM_VA_SIZE is intentionally absent; platform_config.h defines it as
+# 3 MB which matches the actual binary layout produced by kern.ld.S.
 ifeq ($(CFG_ARM64_core),y)
 $(call force,CFG_WITH_LPAE,y)
 supported-ta-targets = ta_arm64
