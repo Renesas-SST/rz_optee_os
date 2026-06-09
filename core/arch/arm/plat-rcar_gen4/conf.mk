@@ -70,7 +70,11 @@ else
 $(call force,CFG_ARM32_core,y)
 endif
 
-CFG_DT ?= y
+# BL31 (Renesas rcar_gen4) does not pass a DTB to OP-TEE.
+# CFG_DT=y causes boot_init_primary_late() to call discover_nsec_memory()
+# via DT only, and configure_console_from_dt() to replace the SCIF console,
+# both of which fail silently and hang the boot.
+$(call force,CFG_DT,n)
 
 CFG_MMAP_REGIONS ?= 22
 CFG_CORE_CLUSTER_SHIFT ?= 1
