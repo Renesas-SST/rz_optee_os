@@ -261,7 +261,11 @@ SECTIONS
 		__nozi_stack_end = .;
 	}
 
-#ifdef CFG_WITH_PAGER
+#ifndef CFG_WITH_PAGER
+	. = ALIGN(SMALL_PAGE_SIZE);
+	__flatmap_free_start = .;
+	__flatmap_unpg_rw_size = __flatmap_free_start - __flatmap_unpg_rw_start;
+#else
 	.heap2 (NOLOAD) : {
 		__heap2_start = .;
 		/*
@@ -385,9 +389,15 @@ SECTIONS
 	_end_of_ram = .;
 
 #ifndef CFG_WITH_PAGER
-	__flatmap_free_start = ALIGN(__end, SMALL_PAGE_SIZE);
+	/*
+	 * __flatmap_free_start and __flatmap_unpg_rw_size are already set
+	 * right after the .nozi section (matching the generic 4.10 kern.ld.S).
+	 * Here we only compute the size of the free range up to end of RAM so
+	 * that MEM_AREA_TEE_RAM_RW and the free range do not overlap; an
+	 * overlap makes mobj_init() unable to resolve the RW mobj and panics
+	 * with 'Failed to register tee ram rw'.
+	 */
 	__flatmap_free_size = _end_of_ram - __flatmap_free_start;
-	__flatmap_unpg_rw_size = _end_of_ram - __flatmap_unpg_rw_start;
 	__get_tee_init_end = .;
 
 	/* Aliases required by 4.10 core/mm/core_mmu.c and entry_a64.S */
