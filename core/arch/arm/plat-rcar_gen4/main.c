@@ -248,8 +248,10 @@ void main_init_gic(void)
 void interrupt_main_handler(void){ }
 */
 
-/* SCIF UART base for sparrow-hawk (serial@e6540000, 921600 baud pre-configured by U-Boot) */
+/* SCIF UART (serial@e6540000) — not covered by DEVICE0/1 IO regions */
 #define RCAR_SCIF_BASE		0xe6540000U
+#define RCAR_SCIF_SIZE		SCIF_REG_SIZE
+register_phys_mem_pgdir(MEM_AREA_IO_SEC, RCAR_SCIF_BASE, RCAR_SCIF_SIZE);
 
 static struct scif_uart_data rcar_console;
 
